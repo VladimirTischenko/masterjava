@@ -1,15 +1,45 @@
 package ru.javaops.masterjava.matrix;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 public class MatrixUtil {
 
-    // TODO implement parallel multiplication matrixA*matrixB
     public static int[][] concurrentMultiply(int[][] matrixA, int[][] matrixB, ExecutorService executor) throws InterruptedException, ExecutionException {
         final int matrixSize = matrixA.length;
         final int[][] matrixC = new int[matrixSize][matrixSize];
+
+        List<Callable<int[]>> callables = new ArrayList<>();
+
+        for (int i = 0; i < matrixSize; i++) {
+            int finalI = i;
+
+            Callable<int[]> task = () -> {
+                final int[] matrixT = new int[matrixSize];
+
+                for (int j = 0; j < matrixSize; j++) {
+                    int sum = 0;
+                    for (int k = 0; k < matrixSize; k++) {
+                        sum += matrixA[finalI][k] * matrixB[k][j];
+                    }
+                    matrixT[j] = sum;
+                }
+                return matrixT;
+            };
+
+            callables.add(task);
+
+        }
+
+        List<Future<int[]>> futures = executor.invokeAll(callables);
+        for (int i = 0; i < matrixSize; i++) {
+            matrixC[i] = futures.get(i).get();
+        }
 
         return matrixC;
     }
