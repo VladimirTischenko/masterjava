@@ -50,12 +50,18 @@ public class MatrixUtil {
         final int[][] matrixC = new int[matrixSize][matrixSize];
 
         for (int i = 0; i < matrixSize; i++) {
+            final int[] columnB = new int[matrixSize];
+            for (int l = 0; l < matrixSize; l++) {
+                columnB[l] = matrixB[l][i];
+            }
             for (int j = 0; j < matrixSize; j++) {
+                final int[] rowA = matrixA[j];
+
                 int sum = 0;
                 for (int k = 0; k < matrixSize; k++) {
-                    sum += matrixA[i][k] * matrixB[k][j];
+                    sum += rowA[k] * columnB[k];
                 }
-                matrixC[i][j] = sum;
+                matrixC[j][i] = sum;
             }
         }
         return matrixC;
